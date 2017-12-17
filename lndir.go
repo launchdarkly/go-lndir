@@ -246,7 +246,6 @@ func processDirectory(sourceDirPath path, sourceDir os.FileInfo, targetDir os.Fi
 			}
 		}
 
-		fmt.Printf("Scanning: %+v\n", sourcePath.List()[baseDepth:])
 		if gitignoreMatcher != nil && gitignoreMatcher.Match(sourcePath.List()[baseDepth:], isDir) {
 			continue
 		}
