@@ -3,3 +3,10 @@ go:
   - 1.8
   - 1.9
   - master
+
+before_sript:
+  - go install github.com/kardianos/govendor/...
+
+script:
+  - govendor install +prog
+  - make test
