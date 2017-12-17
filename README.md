@@ -19,12 +19,15 @@ go-lndir <path to source directory from target directory> [target directory]
 
 If the path you provide for the source directory is relative, then all of the generated links will also be relative.  
 
+## Testing
+
+Install `bats`.  On OSX, this can be done with ```brew install bats```.
+
 ## Plans
 
-There are a couple of planned changes:
+Remaining planned changes:
 
-1. `.gitignore` support
-2. Switching to the go logger instead of the output related code that was ported from C.
+1. Switching to the go logger instead of the output related code that was ported from C.
 
 I don't have a sense of how important output and error code compatibility might be with existing lndir deploys.  I haven't broken it yet but if you need these things, please let me know.
 
