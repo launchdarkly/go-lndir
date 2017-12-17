@@ -37,19 +37,24 @@ import (
 	"runtime"
 	"strings"
 	"syscall"
+
+	osfs "gopkg.in/src-d/go-billy.v3/osfs"
+	"gopkg.in/src-d/go-git.v4/plumbing/format/gitignore"
 )
 
 var (
-	silent      = false
-	ignoreLinks = false
-	withRevInfo = false
+	silent       = false
+	ignoreLinks  = false
+	withRevInfo  = false
+	useGitignore = false
 )
 
 var isOSX = runtime.GOOS == "darwin"
 
 var (
-	rcurdir path
-	curdir  path
+	rcurdir          path
+	curdir           path
+	gitignoreMatcher gitignore.Matcher
 )
 
 type path []string
@@ -60,6 +65,10 @@ func (p path) isAbs() bool {
 
 func (p path) String() string {
 	return filepath.Join(p...)
+}
+
+func (p path) List() []string {
+	return []string(p)
 }
 
 func NewPath(pathStr string) path {
@@ -113,7 +122,7 @@ func equivalent(lname path, rname path) bool {
 	return filepath.Clean(lname.String()) == filepath.Clean(rname.String())
 }
 
-func processSubdir(subdirName string, parentPath path, subdirInfo os.FileInfo) {
+func processSubdir(subdirName string, parentPath path, subdirInfo os.FileInfo, relativeDepth int) {
 	if subdirName == "." || subdirName == ".." {
 		return
 	}
@@ -171,13 +180,14 @@ func processSubdir(subdirName string, parentPath path, subdirInfo os.FileInfo) {
 
 	srcPath := parentPath
 	if !srcPath.isAbs() {
+		relativeDepth += 1
 		srcPath = append(NewPath(".."), parentPath...)
 	}
 
-	processDirectory(srcPath, subdirInfo, targetInfo)
+	processDirectory(srcPath, subdirInfo, targetInfo, relativeDepth)
 }
 
-func processDirectory(sourceDirPath path, sourceDir os.FileInfo, targetDir os.FileInfo) int {
+func processDirectory(sourceDirPath path, sourceDir os.FileInfo, targetDir os.FileInfo, baseDepth int) int {
 	if os.SameFile(sourceDir, targetDir) {
 		msg("%s: From and to directories are identical!", sourceDirPath)
 		return 1
@@ -220,19 +230,30 @@ func processDirectory(sourceDirPath path, sourceDir os.FileInfo, targetDir os.Fi
 
 		sourcePath := append(sourceDirPath, name)
 
+		isDir := false
+
 		// Optimization to skip these checks once all directory entries have been processed
+		var childInfo os.FileInfo
 		if dirsLeft > 0 {
-			var childInfo os.FileInfo
 			if childInfo, err = os.Lstat(sourcePath.String()); err != nil {
 				mperror(sourcePath.String(), err)
 				continue
 			}
 
-			if childInfo.IsDir() {
-				processSubdir(name, sourcePath, childInfo)
+			isDir = childInfo.IsDir()
+			if isDir {
 				dirsLeft -= 1
-				continue
 			}
+		}
+
+		fmt.Printf("Scanning: %+v\n", sourcePath.List()[baseDepth:])
+		if gitignoreMatcher != nil && gitignoreMatcher.Match(sourcePath.List()[baseDepth:], isDir) {
+			continue
+		}
+
+		if isDir {
+			processSubdir(name, sourcePath, childInfo, baseDepth)
+			continue
 		}
 
 		// The option to ignore links exists mostly because
@@ -306,9 +327,12 @@ func readlink(p path) path {
 }
 
 func main() {
-	silent = *flag.Bool("silent", false, "suppress output")
-	ignoreLinks = *flag.Bool("ignorelinks", false, "Don't give links special treatment")
-	withRevInfo = *flag.Bool("withrevinfo", false, "Include revision directories (.git, etc)")
+	var useGitignore bool
+
+	flag.BoolVar(&silent, "silent", false, "suppress output")
+	flag.BoolVar(&ignoreLinks, "ignorelinks", false, "Don't give links special treatment")
+	flag.BoolVar(&withRevInfo, "withrevinfo", false, "Include revision directories (.git, etc)")
+	flag.BoolVar(&useGitignore, "gitignore", false, "Exclude files listed in ,gitignore files")
 
 	flag.Parse()
 
@@ -338,5 +362,17 @@ func main() {
 	} else if !toDir.IsDir() {
 		quit(2, "%s: Not a directory", fromPath)
 	}
-	os.Exit(processDirectory(NewPath(fromPath), fromDir, toDir))
+
+	sourcePath := NewPath(fromPath)
+	if useGitignore {
+		absPath, _ := filepath.Abs(sourcePath.String())
+		fs := osfs.New(absPath)
+		if patterns, err := gitignore.ReadPatterns(fs, []string{}); err != nil {
+			msg("%s: Cannot read gitignore patterns: %s", absPath, err)
+		} else {
+			gitignoreMatcher = gitignore.NewMatcher(patterns)
+		}
+	}
+
+	os.Exit(processDirectory(sourcePath, fromDir, toDir, len(sourcePath.List())))
 }
