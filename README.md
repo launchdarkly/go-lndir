@@ -1,5 +1,7 @@
 # go-lndir: A port of lndir to golang
 
+[![Build Status](https://travis-ci.org/launchdarkly/go-lndir.svg?branch=master)](https://travis-ci.org/launchdarkly/go-lndir)
+
 This is a port of https://opensource.apple.com/source/X11misc/X11misc-10.1/lndir/lndir-1.0.1/lndir.c.  It creates a copy of the directory struture that contains links to the files in the original directory structure.
 
 It's not well tested so *use at your own peril*.  If lndir has a test suite, I couldn't find it and this began as a verbatim port of C-code.
