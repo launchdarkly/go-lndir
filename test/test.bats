@@ -11,17 +11,17 @@ teardown() {
 @test "lndir" {
   run go-lndir $PWD/sample-dir $targetdir
   [ "$status" -eq 0 ]
-  [ "$(readlink $targetdir/file1)" == "$PWD/sample-dir/file1" ]
-  [ "$(readlink $targetdir/fileA)" == "$PWD/sample-dir/fileA" ]
-  [ "$(readlink $targetdir/dir1/file1)" == "$PWD/sample-dir/dir1/file1" ]
-  [ "$(readlink $targetdir/dir1/fileA)" == "$PWD/sample-dir/dir1/fileA" ]
+  [ "$(readlink $targetdir/ignored-file)" == "$PWD/sample-dir/ignored-file" ]
+  [ "$(readlink -n $targetdir/included-file)" == "$PWD/sample-dir/included-file" ]
+  [ "$(readlink -n $targetdir/dir1/ignored-file)" == "$PWD/sample-dir/dir1/ignored-file" ]
+  [ "$(readlink -n $targetdir/dir1/included-file)" == "$PWD/sample-dir/dir1/included-file" ]
 }
 
 @test "lndir -gitignore" {
   run go-lndir -gitignore $PWD/sample-dir $targetdir
   [ "$status" -eq 0 ]
-  [ "$(readlink $targetdir/fileA)" == "$PWD/sample-dir/fileA" ]
-  [ "$(readlink $targetdir/dir1/fileA)" == "$PWD/sample-dir/dir1/fileA" ]
-  [ ! -e "$targetdir/sample-dir/file1" ]
-  [ ! -e "$targetdir/sample-dir/dir1/file1" ]
+  [ "$(readlink -n $targetdir/included-file)" == "$PWD/sample-dir/included-file" ]
+  [ "$(readlink -n $targetdir/dir1/included-file)" == "$PWD/sample-dir/dir1/included-file" ]
+  [ ! -e "$targetdir/sample-dir/ignored-file" ]
+  [ ! -e "$targetdir/sample-dir/dir1/ignored-file" ]
 }
