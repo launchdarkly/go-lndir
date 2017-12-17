@@ -55,7 +55,7 @@ var (
 type path []string
 
 func (p path) isAbs() bool {
-	return filepath.IsAbs(p[0])
+	return p[0] == "/"
 }
 
 func (p path) String() string {
@@ -66,7 +66,12 @@ func NewPath(pathStr string) path {
 	if pathStr == "" {
 		quit(1, "Bad path: %s", pathStr)
 	}
-	return path(strings.Split(pathStr, string(filepath.Separator)))
+	segments := strings.Split(pathStr, string(filepath.Separator))
+	if filepath.IsAbs(pathStr) {
+		return append([]string{"/"}, segments...)
+	} else {
+		return segments
+	}
 }
 
 func quit(code int, fmtStr string, args ...interface{}) {
@@ -113,7 +118,7 @@ func processSubdir(subdirName string, parentPath path, subdirInfo os.FileInfo) {
 		return
 	}
 
-	if withRevInfo && isRevInfo(subdirName) {
+	if !withRevInfo && isRevInfo(subdirName) {
 		return
 	}
 
