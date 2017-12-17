@@ -4,7 +4,7 @@ go:
   - 1.9
   - master
 
-before_sript:
+before_script:
   - go install github.com/kardianos/govendor/...
 
 script:
