@@ -11,7 +11,7 @@ teardown() {
 @test "lndir" {
   run go-lndir $PWD/sample-dir $targetdir
   [ "$status" -eq 0 ]
-  [ "$(readlink $targetdir/ignored-file)" == "$PWD/sample-dir/ignored-file" ]
+  [ "$(readlink -n $targetdir/ignored-file)" == "$PWD/sample-dir/ignored-file" ]
   [ "$(readlink -n $targetdir/included-file)" == "$PWD/sample-dir/included-file" ]
   [ "$(readlink -n $targetdir/dir1/ignored-file)" == "$PWD/sample-dir/dir1/ignored-file" ]
   [ "$(readlink -n $targetdir/dir1/included-file)" == "$PWD/sample-dir/dir1/included-file" ]
