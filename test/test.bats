@@ -2,6 +2,9 @@
 
 setup() {
   targetdir=$(mktemp -d)
+  # Create this one because we can't check it into git
+  mkdir -p $PWD/sample-dir/revinfo-files/.git
+  touch $PWD/sample-dir/revinfo-files/.git/.gitkeep
 }
 
 teardown() {
