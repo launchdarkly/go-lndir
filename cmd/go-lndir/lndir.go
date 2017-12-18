@@ -224,7 +224,7 @@ func processDirectory(sourceDirPath path, sourceDir os.FileInfo, targetDir os.Fi
 			continue
 		}
 
-		if isOSX && (name == ".DS_Store" || name == "._DS_Store") {
+		if isOSX && (name == ".DS_Store" || name == "._.DS_Store") {
 			continue
 		}
 
