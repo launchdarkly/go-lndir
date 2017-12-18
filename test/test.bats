@@ -17,7 +17,19 @@ teardown() {
   [ "$(readlink -n $targetdir/dir1/included-file)" == "$PWD/sample-dir/dir1/included-file" ]
   linked_files=$(cd $targetdir/dir1 && echo .* *)
   echo "Linked files: $linked_files"
-  [ "$linked_files" == ". .. .gitignore ignored-file ignored-nested-file included-file" ]
+  [ "$linked_files" == ". .. .gitignore ignored-file ignored-nested-file included-file relative-link" ]
+}
+
+@test "lndir creates relative links given a relative path to the source" {
+  cp -r $PWD/sample-dir $targetdir/sample-dir
+  mkdir -p $targetdir/relative-test-dir
+  cd $targetdir && run go-lndir ../sample-dir $targetdir/relative-test-dir
+  [ "$status" -eq 0 ]
+  [ "$(readlink -n $targetdir/relative-test-dir/included-file)" == "../sample-dir/included-file" ]
+  [ "$(readlink -n $targetdir/relative-test-dir/dir1/included-file)" == "../../sample-dir/dir1/included-file" ]
+  linked_files=$(cd $targetdir/relative-test-dir/dir1 && echo .* *)
+  echo "Linked files: $linked_files"
+  [ "$linked_files" == ". .. .gitignore ignored-file ignored-nested-file included-file relative-link" ]
 }
 
 @test "lndir -gitignore ignores files specified in .gitignore files" {
@@ -30,7 +42,7 @@ teardown() {
   [ ! -e "$targetdir/sample-dir/dir1/ignored-nested-file" ]
   linked_files=$(cd $targetdir/dir1 && echo .* *)
   echo "Linked files: $linked_files"
-  [ "$linked_files" == ". .. .gitignore included-file" ]
+  [ "$linked_files" == ". .. .gitignore included-file relative-link" ]
 }
 
 @test "lndir ignores revinfo files" {
