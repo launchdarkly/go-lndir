@@ -22,8 +22,7 @@ The impetus to port this to Go was to make it available on OSX and to add suppor
 To isntall it, run:
 
 ```
-go get -u gopkg.in/launchdarkly/go-lndir.v1
-go install gopkg.in/launchdarkly/go-lndir.v1
+go get -u gopkg.in/launchdarkly/go-lndir.v1/...
 ```
 
 Then run it:
