@@ -20,7 +20,7 @@ teardown() {
   [ "$linked_files" == ". .. .gitignore ignored-file ignored-nested-file included-file relative-link" ]
 }
 
-@test "lndir creates relative links given a relative path to the source" {
+@test "lndir creates relative links when given a relative path to the source" {
   cp -r $PWD/sample-dir $targetdir/sample-dir
   mkdir -p $targetdir/relative-test-dir
   cd $targetdir && run go-lndir ../sample-dir $targetdir/relative-test-dir
