@@ -2,7 +2,7 @@ package main
 
 /*
 
-Derived from lndir.c, which includes the above copyright notice.
+Derived from lndir.c, which includes the copyright notice below.
 
 Copyright (c) 1990, 1998 The Open Group
 
