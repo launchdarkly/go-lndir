@@ -7,7 +7,7 @@ From the linux [man page](http://www.xfree86.org/4.3.0/lndir.1.html):
 
 > The lndir program makes a shadow copy todir of a directory tree fromdir, except that the shadow is not populated with real files but instead with symbolic links pointing at the real files in the fromdir directory tree.
 
-**Current stable release:** gopkg.in/launchdarkly/go-lndir.v1
+**Current stable library release:** gopkg.in/launchdarkly/go-lndir.v1
 
 This project was originally derived from the C language source at [lndir.c](https://opensource.apple.com/source/X11misc/X11misc-10.1/lndir/lndir-1.0.1/lndir.c). 
 
@@ -19,10 +19,10 @@ The impetus to port this to Go was to make it available on OSX and to add suppor
 
 ## Installation
 
-To isntall it, run:
+To install the command-line tool `go-lndir`, run:
 
 ```
-go get -u gopkg.in/launchdarkly/go-lndir.v1/...
+go get -u github.com/launchdarkly/go-lndir
 ```
 
 Then run it:
