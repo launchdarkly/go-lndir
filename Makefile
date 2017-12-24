@@ -1,5 +1,5 @@
 test:
-	govendor test +local
+	go test
 	go build ./cmd/go-lndir
 	cd test; bats test.bats
 
